@@ -5,9 +5,9 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
 
 1. **Directory Structure**: Place the Whisper-generated transcripts in a directory named after the session (e.g., `SESSION_NAME`). If the session has multiple parts, create subdirectories (e.g., `SESSION_NAME/PART`). For example, sometimes I have 5 hour sessions - I stop and start Craig halfway through the session, so I have two "parts" to process separately.
 
-**Note:** This script does not combine session parts. This is purely organizational. The script will treat "parts" of a session as completely independent, by design.
+    **Note:** This script does not combine session parts. This is purely organizational. The script will treat "parts" of a session as completely independent, by design.
     
-2. **Transcript Files**: Each file should be a TSV file (tab-separated values) with the following columns:
+2. **Transcript Files**: I built this to work with the default .tsv output from Whisper. Each file should be a TSV file (tab-separated values) with the following columns:
     
     - `start`: Start timestamp of the dialogue line.
     - `end`: End timestamp of the dialogue line.
@@ -15,6 +15,8 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
     - `speaker`: The speaker's identifier.
     
     Ensure one file per speaker, containing their respective dialogue lines.
+
+    The script will loop through and look for *all* .tsv files in the session/part directory, process them all, then merge them together.
     
 3. **Replacement File**: Create a JSON file (`merge_replacements.json`) for any custom word replacements you want. This file will help correct common misinterpretations by Whisper. An example format:
     
@@ -24,7 +26,7 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
     
     `{     "Valtor": ["volatore", "walter"],     "Orla": ["ola"] }`
     
-**Note:** The script will look for config.py and merge_replacements.json in the same directory as the script. If they aren't found on the first run, they will be copied from the defaults with default values.
+    **Note:** The script will look for config.py and merge_replacements.json in the same directory as the script. If they aren't found on the first run, they will be copied from the defaults with default values.
 
 ## Usage
 
