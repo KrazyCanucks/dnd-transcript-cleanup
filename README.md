@@ -28,9 +28,22 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
     
     **Note:** The script will look for config.py and merge_replacements.json in the same directory as the script. If they aren't found on the first run, they will be copied from the defaults with default values.
 
-## Usage
+4. **Configuration**: The script uses a few configuration parameters to adjust the cleanup process. These include:
+        
+        - 'NAME_MAPPING': A dictionary to map Discord speaker names to their respective character names.
+        - `DUPLICATE_TEXT_LENGTH`: The maximum length of duplicate lines to remove.
+        - `SHORT_TEXT_LENGTH`: The minimum length of lines to keep.
+        - `SPLIT_THRESHOLD`: The maximum number of lines in the final transcript before splitting.
+        
+        You can see all the configuration options in the `config.py` file.
+
+## Usage 
+Just about everything should happen automatically, but here's a quick breakdown of the process:
+
 
 1. **Remove Short Form Duplicates**: Lines of dialogue that are identical and shorter than `DUPLICATE_TEXT_LENGTH` are removed, except for the first occurrence. These duplicates typically include fillers like “yeah” or “okay” and other artifacts.
+    
+    I found it important to keep this separate from the full duplicate check, because of how we merge the speaker lines later. This removes a lot of the "noise" from the transcript, while preserving more important, meaningful "duplicates" (e.g., "Nat 20!")
     
 2. **Merge Close Lines**: Consecutive dialogue lines by the same speaker with less than 0.01 seconds between them are merged, creating a more cohesive dialogue flow.
     
@@ -40,9 +53,11 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
     
 5. **Compile All Speakers**: The individual cleaned transcripts are then merged into a single file, sorted by timestamp, ensuring the conversational flow reflects all participants in proper order.
     
-6. **Final Merge for Consecutive Lines**: Consecutive lines from the same speaker are combined to further condense the dialogue, making it easier to follow.
+6. **Final Merge for Consecutive Dialogue**: Consecutive dialogue from the same speaker are combined to further condense the transcript, making it easier to follow.
     
 7. **Word Replacement Pass**: Using the provided replacement file (`merge_replacements.json`), the tool corrects common misinterpretations of specific words or names. This can be useful for unique terms or proper nouns often misinterpreted by Whisper.
+
+    **Note:** The merge_replacements.json file has a key for each "true" word, followed by a list of possible "incorrect" words. The script will replace any "incorrect" words with the "true" word. This is useful for correcting common misinterpretations by Whisper. It does NOT care about capitalization from the incorrect words (e.g,. "Chorus" and "chorus" are treated as the same word).
     
 8. **Splitting the Transcript**: If the final transcript is too large, it can be divided into parts for ease of processing in models with input limitations. (This step is optional if not needed).
     
@@ -53,6 +68,6 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
     
     - Whisper-generated TSV transcripts for each speaker.
     - A `merge_replacements.json` file with any required word replacements.
-2. Run the script with the relevant configuration parameters (e.g., `DUPLICATE_TEXT_LENGTH`, `SHORT_TEXT_LENGTH`). Console output will display details of the cleanup process, including which duplicates and lines were removed or merged.
+2. Run the script. Console output will display details of the cleanup process, including which duplicates and lines were removed or merged.
     
-3. The output will be a final, cleaned transcript file, ready for review or input into other tools.
+3. The output will be multiple intermediate files for troubleshooting/evaluation purposes, and a final, cleaned transcript file, ready for review or input into other tools.
