@@ -3,7 +3,9 @@ A few cleanup scripts for processing Whisper .tsv files (generated from Craig Di
 
 ## Setup
 
-1. **Directory Structure**: Place the Whisper-generated transcripts in a directory named after the session (e.g., `SESSION_NAME`). If the session has multiple parts, create subdirectories (e.g., `SESSION_NAME/PART`).
+1. **Directory Structure**: Place the Whisper-generated transcripts in a directory named after the session (e.g., `SESSION_NAME`). If the session has multiple parts, create subdirectories (e.g., `SESSION_NAME/PART`). For example, sometimes I have 5 hour sessions - I stop and start Craig halfway through the session, so I have two "parts" to process separately.
+
+**Note:** This script does not combine session parts. This is purely organizational. The script will treat "parts" of a session as completely independent, by design.
     
 2. **Transcript Files**: Each file should be a TSV file (tab-separated values) with the following columns:
     
