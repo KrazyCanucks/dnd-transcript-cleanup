@@ -10,6 +10,8 @@ Note: You will have to rename the defaul_config.py to config.py and the default_
 
     **Note:** This script does not combine session parts. This is purely organizational. The script will treat "parts" of a session as completely independent, by design.
     
+This is a bit outdated. Right now I no longer have "Parts" and I just leave that variable blank.  Probably some room to update that, but whatever.  Feel free to just point it directly to your session transcript folder.
+
 2. **Transcript Files**: I built this to work with the default .tsv output from Whisper. Each file should be a TSV file (tab-separated values) with the following columns:
     
     - `start`: Start timestamp of the dialogue line.
