@@ -1,6 +1,8 @@
 # dnd-transcript-cleanup
 A few cleanup scripts for processing Whisper .tsv files (generated from Craig Discord recordings)
 
+There are also some prompts to look at in the AI_Prompts folder. Depending on the length of my transcripts, I will either use ChatGPT with custom GPTs with these prompts, or I will use the anthropic Claude models because they hold a longer context window. Enjoy!
+
 ## Setup
 
 1. **Directory Structure**: Place the Whisper-generated transcripts in a directory named after the session (e.g., `SESSION_NAME`). If the session has multiple parts, create subdirectories (e.g., `SESSION_NAME/PART`). For example, sometimes I have 5 hour sessions - I stop and start Craig halfway through the session, so I have two "parts" to process separately.
