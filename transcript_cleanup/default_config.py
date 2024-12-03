@@ -5,7 +5,7 @@ import os
 # Configurable parameters
 
 # Session name and part are folder names for storing your recordings
-SESSION_NAME = "STRAHD Session 3" # This is the main folder name for the session
+SESSION_NAME = "COS Session 4" # This is the main folder name for the session
 PART = 'Part 1' # If your recordings are split into different folder parts, change this to the appropriate part
 
 

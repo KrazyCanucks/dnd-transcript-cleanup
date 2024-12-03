@@ -9,14 +9,14 @@ from colorama import Fore, Style, init
 # first check to see if there is a config.py file in the same directory as this script
 # if there is not, then copy the default_config.py file to config.py
 # check just for the file name, not the full path
-if not os.path.isfile('config.py'):
-    import shutil
-    shutil.copyfile('default_config.py', 'config.py')
+# if not os.path.isfile('config.py'):
+#     import shutil
+#     shutil.copyfile('default_config.py', 'config.py')
     
-# do the same for the merge_replacements.sjon
-if not os.path.isfile('merge_replacements.json'):
-    import shutil
-    shutil.copyfile('default_merge_replacements.json', 'merge_replacements.json')
+# # do the same for the merge_replacements.sjon
+# if not os.path.isfile('merge_replacements.json'):
+#     import shutil
+#     shutil.copyfile('default_merge_replacements.json', 'merge_replacements.json')
 
 import config as config  # Import configuration
 
@@ -33,7 +33,9 @@ overlap = config.OVERLAP
 
 # Function to load replacements from JSON file
 def load_replacements(file_path):
-    with open(file_path, 'r') as file:
+    script_dir = os.path.dirname(__file__)
+    abs_file_path = os.path.join(script_dir, file_path)
+    with open(abs_file_path, 'r') as file:
         return json.load(file)
     
 # Apply replacements to text
@@ -197,11 +199,15 @@ def main():
     concatenated_text = df.apply(lambda row: f"{row['name']}: {row['text']}", axis=1).str.cat(sep='\n')
 
     # Split text into parts and save
-    parts = split_text(concatenated_text)
+    parts = split_text(concatenated_text, max_length, overlap)
     for i, part in enumerate(parts):
         part_path = os.path.join(base_path, f"Session {config.PART} Final part_{i + 1}.txt")
         with open(part_path, 'w', encoding='utf-8') as file:
             file.write(part)
+            
+    full_path = os.path.join(base_path, f"Session {config.PART} Final COMPLETE.txt")
+    with open(full_path, 'w', encoding='utf-8') as file:
+            file.write(concatenated_text)
     print("Consecutive rows with the same speaker have been merged and split into parts.")
     
 # run the main function
