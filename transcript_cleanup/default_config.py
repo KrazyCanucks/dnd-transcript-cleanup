@@ -5,18 +5,29 @@ import os
 # Configurable parameters
 
 # Session name and part are folder names for storing your recordings
-SESSION_NAME = "COS Session 4" # This is the main folder name for the session
-PART = 'Part 1' # If your recordings are split into different folder parts, change this to the appropriate part
+SESSION_NAME = "Shackled City Session 14" # This is the main folder name for the session
+PART = 'Part01' # If your recordings are split into different folder parts, change this to the appropriate part
 
 
 # Base path configuration for the file directory
-BASE_PATH = os.path.join('C:\\', 'Users', 'brand', 'DND', '_ Curse of Strahd', '0. Craig Recordings', SESSION_NAME, PART)
+BASE_PATH = os.path.join('C:\\', 'Cloud-Drive_scott.o.webster@outlook.com', 'RPG', 'Campaign', 'Shackled City', 'Recordings', SESSION_NAME, PART)
+
 
 # Name mappings - change these to your player's craig discord names 
 # and map them to their character names
 NAME_MAPPINGS = {
-    'gradels': 'Izzy',
-    'blue': 'DM'
+    'DM': 'Scott',    
+
+    'Eolas': 'Parrish', 
+    'Graye': 'Andrew', 
+    'Naldon': 'Jason', 
+    'Lars': 'Dale',    
+    'Lysikor': 'Josh',
+    'Ragnarock': 'Don',        
+    'Skullgrin': 'Abe',
+
+    'Spectator01': 'Mike',
+    'Spectator02': 'Toby',    
 }
 
 # Text length settings
