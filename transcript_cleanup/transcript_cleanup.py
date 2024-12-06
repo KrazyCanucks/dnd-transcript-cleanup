@@ -18,7 +18,8 @@ from colorama import Fore, Style, init
 #     import shutil
 #     shutil.copyfile('default_merge_replacements.json', 'merge_replacements.json')
 
-import config as config  # Import configuration
+#import transcript_cleanup.config as config  # Import configuration
+import config  # Import configuration
 
 # Initialize colorama
 init()
