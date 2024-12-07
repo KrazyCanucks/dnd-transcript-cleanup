@@ -18,6 +18,7 @@ from colorama import Fore, Style, init
 #     import shutil
 #     shutil.copyfile('default_merge_replacements.json', 'merge_replacements.json')
 
+#2024-12-06 Scott Webster, updated as transcrip_cleanup.config does not exist.
 #import transcript_cleanup.config as config  # Import configuration
 import config  # Import configuration
 
