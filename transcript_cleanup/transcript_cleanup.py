@@ -3,35 +3,26 @@ import os
 import re
 import csv
 import json
+import logging
 from colorama import Fore, Style, init
-
-
-# first check to see if there is a config.py file in the same directory as this script
-# if there is not, then copy the default_config.py file to config.py
-# check just for the file name, not the full path
-# if not os.path.isfile('config.py'):
-#     import shutil
-#     shutil.copyfile('default_config.py', 'config.py')
-    
-# # do the same for the merge_replacements.sjon
-# if not os.path.isfile('merge_replacements.json'):
-#     import shutil
-#     shutil.copyfile('default_merge_replacements.json', 'merge_replacements.json')
-
-#2024-12-06 Scott Webster, updated as transcrip_cleanup.config does not exist.
-#import transcript_cleanup.config as config  # Import configuration
-import config  # Import configuration
 
 # Initialize colorama
 init()
 
-# Set variables from config
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+# Import configuration and set variables from config
+import config
+
 part_name = config.PART
 session_name = config.SESSION_NAME
 base_path = config.BASE_PATH
 name_mapping = config.NAME_MAPPINGS
 max_length = config.MAX_LENGTH
 overlap = config.OVERLAP
+
 
 # Function to load replacements from JSON file
 def load_replacements(file_path):
@@ -50,70 +41,75 @@ def apply_replacements(text, replacement_map):
 
 # Processing TSV files
 def process_tsv_to_csv(file_path):
-    # Load the TSV file to a pandas DataFrame
-    df = pd.read_csv(file_path, delimiter='\t')
+    try:    
+        # Load the TSV file to a pandas DataFrame
+        df = pd.read_csv(file_path, delimiter='\t')
 
-    # Find and remove duplicate 'text' values with a length threshold from config
-    short_texts = df[df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH]
-    duplicate_texts = short_texts[short_texts.duplicated(subset='text', keep=False)]
-    duplicate_count = duplicate_texts['text'].value_counts()
-    
-    # Print duplicate information
-    print("\n" + f"{Fore.CYAN}Duplicate Short Text Info:{Style.RESET_ALL}")
-    for text, count in duplicate_count.items():
-        print(f"\ttext: '{Fore.YELLOW}{text}{Style.RESET_ALL}' occurrences: {Fore.GREEN}{count}{Fore.RED}{Style.RESET_ALL}")
-    print("\r")
+        # Find and remove duplicate 'text' values with a length threshold from config
+        short_texts = df[df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH]
+        duplicate_texts = short_texts[short_texts.duplicated(subset='text', keep=False)]
+        duplicate_count = duplicate_texts['text'].value_counts()
+        
+        # Print duplicate information
+        print("\n" + f"{Fore.CYAN}Duplicate Short Text Info:{Style.RESET_ALL}")
+        for text, count in duplicate_count.items():
+            print(f"\ttext: '{Fore.YELLOW}{text}{Style.RESET_ALL}' occurrences: {Fore.GREEN}{count}{Fore.RED}{Style.RESET_ALL}")
+        print("\r")
 
-    # Remove duplicates based on the length configuration
-    df = df[~((df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH) & df.duplicated(subset='text', keep='first'))]
-    removed_duplicates_count = len(short_texts) - len(df[df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH])
+        # Remove duplicates based on the length configuration
+        df = df[~((df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH) & df.duplicated(subset='text', keep='first'))]
+        removed_duplicates_count = len(short_texts) - len(df[df['text'].str.len() <= config.SHORT_DUPLICATE_TEXT_LENGTH])
 
-    print(f"{Fore.CYAN}Total duplicate rows of texts with {config.SHORT_DUPLICATE_TEXT_LENGTH} characters or less removed: {Fore.GREEN}{removed_duplicates_count}{Style.RESET_ALL}\n")
+        print(f"{Fore.CYAN}Total duplicate rows of texts with {config.SHORT_DUPLICATE_TEXT_LENGTH} characters or less removed: {Fore.GREEN}{removed_duplicates_count}{Style.RESET_ALL}\n")
 
-    # Merge rows based on 'end' and 'start' values
-    merged_count = 0
-    i = 0
-    while i < len(df) - 1:
-        if abs(df.iloc[i]['end'] - df.iloc[i + 1]['start']) <= config.MERGE_THRESHOLD:
-            end_val = df.iloc[i + 1]['end']
-            combined_text = str(df.iloc[i]['text']) + " " + str(df.iloc[i + 1]['text'])
-            df.loc[df.index[i], 'end'] = end_val
-            df.loc[df.index[i], 'text'] = combined_text
-            df = df.drop(df.index[i + 1])
-            df = df.reset_index(drop=True)
-            merged_count += 1
-        else:
-            i += 1
-    print(f"Total rows merged: {merged_count}")
+        # Merge rows based on 'end' and 'start' values
+        merged_count = 0
+        i = 0
+        while i < len(df) - 1:
+            if abs(df.iloc[i]['end'] - df.iloc[i + 1]['start']) <= config.MERGE_THRESHOLD:
+                end_val = df.iloc[i + 1]['end']
+                combined_text = str(df.iloc[i]['text']) + " " + str(df.iloc[i + 1]['text'])
+                df.loc[df.index[i], 'end'] = end_val
+                df.loc[df.index[i], 'text'] = combined_text
+                df = df.drop(df.index[i + 1])
+                df = df.reset_index(drop=True)
+                merged_count += 1
+            else:
+                i += 1
+        print(f"Total rows merged: {merged_count}")
 
-    # Remove rows with short text based on config length
-    short_text_count = df[df['text'].apply(lambda x: len(x) if isinstance(x, str) else 0) <= config.SHORT_TEXT_LENGTH].shape[0]
-    df = df[df['text'].apply(lambda x: len(x) > config.SHORT_TEXT_LENGTH if isinstance(x, str) else False)]
-    print(f"Rows removed with short text: {short_text_count}")
+        # Remove rows with short text based on config length
+        short_text_count = df[df['text'].apply(lambda x: len(x) if isinstance(x, str) else 0) <= config.SHORT_TEXT_LENGTH].shape[0]
+        df = df[df['text'].apply(lambda x: len(x) > config.SHORT_TEXT_LENGTH if isinstance(x, str) else False)]
+        print(f"Rows removed with short text: {short_text_count}")
 
-    # Second duplicate check
-    duplicate_texts = df[df.duplicated(subset='text', keep=False)]
-    duplicate_count = duplicate_texts.groupby('text').size()
-    print("\n" + f"{Fore.CYAN}Remaining Duplicate Text Info:{Style.RESET_ALL}")
-    for text, count in duplicate_count.items():
-        print(f"\ttext: '{Fore.YELLOW}{text}{Style.RESET_ALL}' occurrences: {Fore.GREEN}{count}{Fore.RED}{Style.RESET_ALL}")
-    print("\r")
-    df = df.drop_duplicates(subset='text', keep='first')
-    print(f"{Fore.CYAN}Total duplicate rows removed (pass 2): {Fore.GREEN}{duplicate_texts.shape[0]}{Style.RESET_ALL}\n")    
+        # Second duplicate check
+        duplicate_texts = df[df.duplicated(subset='text', keep=False)]
+        duplicate_count = duplicate_texts.groupby('text').size()
+        print("\n" + f"{Fore.CYAN}Remaining Duplicate Text Info:{Style.RESET_ALL}")
+        for text, count in duplicate_count.items():
+            print(f"\ttext: '{Fore.YELLOW}{text}{Style.RESET_ALL}' occurrences: {Fore.GREEN}{count}{Fore.RED}{Style.RESET_ALL}")
+        print("\r")
+        df = df.drop_duplicates(subset='text', keep='first')
+        print(f"{Fore.CYAN}Total duplicate rows removed (pass 2): {Fore.GREEN}{duplicate_texts.shape[0]}{Style.RESET_ALL}\n")    
 
-    # Determine name based on file_path using config mapping
-    name = 'Unknown'
-    for key in name_mapping:
-        if key in file_path:
-            name = name_mapping[key]
-            break
+        # Determine name based on file_path using config mapping
+        name = 'Unknown'
+        for key in name_mapping:
+            if key in file_path:
+                name = name_mapping[key]
+                break
 
-    # Add 'name' column to DataFrame
-    df['name'] = name
+        # Add 'name' column to DataFrame
+        df['name'] = name
 
-    # Save to new CSV file with configurable suffix
-    df.to_csv(f'{file_path}{config.PROCESSED_CSV_SUFFIX}', index=False)
-    return df
+        # Save to new CSV file with configurable suffix
+        df.to_csv(f'{file_path}{config.PROCESSED_CSV_SUFFIX}', index=False)
+        return df
+    except Exception as e:
+        logging.error(f"Error processing TSV file {file_path}: {e}")
+        print(f"{Fore.RED}Error processing TSV file {file_path}: {e}{Style.RESET_ALL}")
+        return pd.DataFrame()  # Return an empty DataFrame in case of error
 
 # Merge consecutive rows with the same speaker and save the result
 def merge_speaker_texts(input_filename, output_filename):
@@ -176,22 +172,40 @@ def main():
     for subdir, dirs, files in os.walk(base_path):
         for file in files:
             if file.endswith('.tsv'):
-                print("\n" + Fore.LIGHTGREEN_EX + "="*100 + "\n" + Fore.LIGHTGREEN_EX + "="*100 + Style.RESET_ALL + "\n")
-                print(f"Processing file: {Fore.LIGHTBLUE_EX}{file}{Style.RESET_ALL}")
-                file_path = os.path.join(subdir, file)
-                processed_df = process_tsv_to_csv(file_path)
-                dataframes.append(processed_df)
-                print(f"Processed file: {Fore.LIGHTBLUE_EX}{file}{Style.RESET_ALL}")   
+                try:
+                    print("\n" + Fore.LIGHTGREEN_EX + "="*100 + "\n" + Fore.LIGHTGREEN_EX + "="*100 + Style.RESET_ALL + "\n")
+                    print(f"Processing file: {Fore.LIGHTBLUE_EX}{file}{Style.RESET_ALL}")
+                    file_path = os.path.join(subdir, file)
+                    processed_df = process_tsv_to_csv(file_path)
+                    print(f"Processed DataFrame shape: {processed_df.shape}")
+                    dataframes.append(processed_df)
+                    print(f"Processed file: {Fore.LIGHTBLUE_EX}{file}{Style.RESET_ALL}")
+                except Exception as e:
+                    logging.error(f"Error processing file {file}: {e}")
+                    print(f"{Fore.RED}Error processing file {file}: {e}{Style.RESET_ALL}")
 
-    # Concatenate and save the combined DataFrame
-    all_data = pd.concat(dataframes).sort_values(by='start')
-    combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
-    all_data.to_csv(os.path.join(base_path, config.COMBINED_CSV_FILENAME), index=False)
-    print("\n" + f"{Fore.LIGHTMAGENTA_EX}All data combined and saved in: {Fore.LIGHTWHITE_EX}'{config.COMBINED_CSV_FILENAME}'")
+
+
+    # Check if dataframes list is not empty
+    if dataframes:
+        try:
+            # Concatenate and save the combined DataFrame
+            all_data = pd.concat(dataframes).sort_values(by='start')
+            combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
+            all_data.to_csv(combined_csv_path, index=False)
+            print("\n" + f"{Fore.LIGHTMAGENTA_EX}All data combined and saved in: {Fore.LIGHTWHITE_EX}'{config.COMBINED_CSV_FILENAME}'")
+        except Exception as e:
+            logging.error(f"Error concatenating or saving data: {e}")
+            print(f"{Fore.RED}Error concatenating or saving data: {e}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}No dataframes to concatenate. Please check the input files and processing function.{Style.RESET_ALL}")
+
+
 
     # Merge speaker texts and process replacements
     merged_csv_path = os.path.join(base_path, config.MERGED_CSV_FILENAME)
     merge_speaker_texts(combined_csv_path, merged_csv_path)
+
 
     # Load replacements and apply them
     replacements = load_replacements(config.REPLACEMENTS_FILE)
@@ -199,6 +213,7 @@ def main():
     for column in df.columns:
         df[column] = df[column].astype(str).apply(lambda x: apply_replacements(x, replacements))
     concatenated_text = df.apply(lambda row: f"{row['name']}: {row['text']}", axis=1).str.cat(sep='\n')
+
 
     # Split text into parts and save
     parts = split_text(concatenated_text, max_length, overlap)
