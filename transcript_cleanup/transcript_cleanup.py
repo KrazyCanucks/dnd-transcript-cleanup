@@ -169,7 +169,6 @@ def split_text(text, max_length=50000, overlap=3000):
 
 def main():
     dataframes = []
-
     # Process files in the directory
     for subdir, dirs, files in os.walk(base_path):
         for file in files:
@@ -182,6 +181,9 @@ def main():
                 print(f"Processed file: {Fore.LIGHTBLUE_EX}{file}{Style.RESET_ALL}")   
 
     # Concatenate and save the combined DataFrame
+    # if all_data is empty, print a message with the base_path (use a color) and say that probably no files were found ther
+    if not dataframes:
+        print(f"\n{Fore.LIGHTRED_EX}Error finding files - are you sure this is the right path: {Fore.LIGHTWHITE_EX}'{base_path}'{Style.RESET_ALL}")
     all_data = pd.concat(dataframes).sort_values(by='start')
     combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
     all_data.to_csv(os.path.join(base_path, config.COMBINED_CSV_FILENAME), index=False)
