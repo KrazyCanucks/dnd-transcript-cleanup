@@ -167,7 +167,6 @@ def split_text(text, max_length=50000, overlap=3000):
 
 def main():
     dataframes = []
-
     # Process files in the directory
     for subdir, dirs, files in os.walk(base_path):
         for file in files:
@@ -186,21 +185,11 @@ def main():
 
 
 
-    # Check if dataframes list is not empty
-    if dataframes:
-        try:
-            # Concatenate and save the combined DataFrame
-            all_data = pd.concat(dataframes).sort_values(by='start')
-            combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
-            all_data.to_csv(combined_csv_path, index=False)
-            print("\n" + f"{Fore.LIGHTMAGENTA_EX}All data combined and saved in: {Fore.LIGHTWHITE_EX}'{config.COMBINED_CSV_FILENAME}'")
-        except Exception as e:
-            logging.error(f"Error concatenating or saving data: {e}")
-            print(f"{Fore.RED}Error concatenating or saving data: {e}{Style.RESET_ALL}")
-    else:
-        print(f"{Fore.RED}No dataframes to concatenate. Please check the input files and processing function.{Style.RESET_ALL}")
-
-
+    # Concatenate and save the combined DataFrame
+    all_data = pd.concat(dataframes).sort_values(by='start')
+    combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
+    all_data.to_csv(os.path.join(base_path, config.COMBINED_CSV_FILENAME), index=False)
+    print("\n" + f"{Fore.LIGHTMAGENTA_EX}All data combined and saved in: {Fore.LIGHTWHITE_EX}'{config.COMBINED_CSV_FILENAME}'")
 
     # Merge speaker texts and process replacements
     merged_csv_path = os.path.join(base_path, config.MERGED_CSV_FILENAME)
