@@ -10,7 +10,7 @@ PART = 'Part01' # If your recordings are split into different folder parts, chan
 
 
 # Base path configuration for the file directory
-BASE_PATH = os.path.join('C:\\', 'Cloud-Drive_scott.o.webster@outlook.com', 'RPG', 'Campaign', 'Shackled City', 'Recordings', SESSION_NAME, PART)
+BASE_PATH = os.path.join('C:\\', 'Recordings', SESSION_NAME, PART)
 
 
 # Name mappings - change these to your player's craig discord names 
