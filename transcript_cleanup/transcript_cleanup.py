@@ -16,12 +16,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Import configuration and set variables from config
 import config
 
-part_name = config.PART
-session_name = config.SESSION_NAME
+session_name = config.SESSION_NAME          
+part_name = config.PART                     
 base_path = config.BASE_PATH
 name_mapping = config.NAME_MAPPINGS
 max_length = config.MAX_LENGTH
 overlap = config.OVERLAP
+source_file = config.SOURCE_FILE
 
 
 # Function to load replacements from JSON file
@@ -30,7 +31,8 @@ def load_replacements(file_path):
     abs_file_path = os.path.join(script_dir, file_path)
     with open(abs_file_path, 'r') as file:
         return json.load(file)
-    
+
+
 # Apply replacements to text
 def apply_replacements(text, replacement_map):
     for primary_name, aliases in replacement_map.items():
@@ -38,6 +40,7 @@ def apply_replacements(text, replacement_map):
             pattern = re.compile(re.escape(alias), re.IGNORECASE)
             text = pattern.sub(primary_name, text)
     return text
+
 
 # Processing TSV files
 def process_tsv_to_csv(file_path):
@@ -147,10 +150,10 @@ def merge_speaker_texts(input_filename, output_filename):
                 merged_text = text
                 last_speaker = speaker
 
-        
         # Write the last speaker's text after the loop ends
         if last_speaker is not None:
             csv_writer.writerow([merged_text, last_speaker])
+
 
 # Split large text into parts
 def split_text(text, max_length=50000, overlap=3000):
@@ -164,6 +167,7 @@ def split_text(text, max_length=50000, overlap=3000):
         parts.append(text[start:end])
         start = end - overlap
     return parts
+
 
 def main():
     dataframes = []
@@ -190,6 +194,7 @@ def main():
     combined_csv_path = os.path.join(base_path, config.COMBINED_CSV_FILENAME)
     all_data.to_csv(os.path.join(base_path, config.COMBINED_CSV_FILENAME), index=False)
     print("\n" + f"{Fore.LIGHTMAGENTA_EX}All data combined and saved in: {Fore.LIGHTWHITE_EX}'{config.COMBINED_CSV_FILENAME}'")
+
 
     # Merge speaker texts and process replacements
     merged_csv_path = os.path.join(base_path, config.MERGED_CSV_FILENAME)
