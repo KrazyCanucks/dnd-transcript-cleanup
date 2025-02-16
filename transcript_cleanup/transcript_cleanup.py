@@ -22,7 +22,6 @@ base_path = config.BASE_PATH
 name_mapping = config.NAME_MAPPINGS
 max_length = config.MAX_LENGTH
 overlap = config.OVERLAP
-source_file = config.SOURCE_FILE
 
 
 # Function to load replacements from JSON file
@@ -169,6 +168,9 @@ def split_text(text, max_length=50000, overlap=3000):
     return parts
 
 
+# --------------------------------- 
+# Main Function
+# --------------------------------- 
 def main():
     dataframes = []
     # Process files in the directory
@@ -220,7 +222,8 @@ def main():
     with open(full_path, 'w', encoding='utf-8') as file:
             file.write(concatenated_text)
     print("Consecutive rows with the same speaker have been merged and split into parts.")
-    
+
+
 # run the main function
 if __name__ == "__main__":
     main()

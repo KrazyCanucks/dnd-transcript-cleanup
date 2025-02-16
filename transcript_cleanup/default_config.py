@@ -19,15 +19,15 @@ else:
 # Name mappings - change these to your player's craig discord names 
 # and map them to their character names
 NAME_MAPPINGS = {
-    'DM': 'Scott',    
+    'KrazyCanucks': 'DM(Scott)',    
 
-    'Eolas': 'Parrish', 
-    'Graye': 'Andrew', 
-    'Naldon': 'Jason', 
-    'Lars': 'Dale',    
-    'Lysikor': 'Josh',
-    'Ragnarock': 'Don',        
-    'Skullgrin': 'Abe',
+    'Shedneck': 'Eolas', 
+    'Reail8': 'Graye', 
+    'CmnderThrawn': 'Naldon', 
+    'Draglock': 'Lars',    
+    'theFlash8Six': 'Lysikor',
+    'xxxOMGxxx': 'Ragnarock',        
+    'Warchydle73': 'Skullgrin',
 
     'Spectator01': 'Mike',
     'Spectator02': 'Toby',    
